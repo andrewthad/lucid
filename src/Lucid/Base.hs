@@ -53,8 +53,8 @@ import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString as S
 import           Data.Functor.Identity
-import           Data.HashMap.Strict (HashMap)
-import qualified Data.HashMap.Strict as M
+import           Data.Map.Strict (Map)
+import qualified Data.Map.Strict as M
 import           Data.Hashable (Hashable(..))
 import           Data.Semigroup (Semigroup (..))
 import           Data.Monoid (Monoid (..))
@@ -86,7 +86,7 @@ type Html = HtmlT Identity
 -- | A monad transformer that generates HTML. Use the simpler 'Html'
 -- type if you don't want to transform over some other monad.
 newtype HtmlT m a =
-  HtmlT {runHtmlT :: m (HashMap Text Text -> Builder,a)
+  HtmlT {runHtmlT :: m (Map Text Text -> Builder,a)
          -- ^ This is the low-level way to run the HTML transformer,
          -- finally returning an element builder and a value. You can
          -- pass 'mempty' for this argument for a top-level call. See
@@ -355,7 +355,7 @@ instance (Functor m) => With (HtmlT m a -> HtmlT m a) where
       toPair (Attribute x y) = (x,y)
 
 -- | Union two sets of arguments and append duplicate keys.
-unionArgs :: HashMap Text Text -> HashMap Text Text -> HashMap Text Text
+unionArgs :: Map Text Text -> Map Text Text -> Map Text Text
 unionArgs = M.unionWith (<>)
 
 --------------------------------------------------------------------------------
@@ -529,7 +529,7 @@ buildAttr key val =
      else s "=\"" <> Blaze.fromHtmlEscapedText val <> s "\""
 
 -- | Folding and monoidally appending attributes.
-foldlMapWithKey :: Monoid m => (k -> v -> m) -> HashMap k v -> m
+foldlMapWithKey :: Monoid m => (k -> v -> m) -> Map k v -> m
 foldlMapWithKey f = M.foldlWithKey' (\m k v -> m `mappend` f k v) mempty
 
 -- | Convenience function for constructing builders.
